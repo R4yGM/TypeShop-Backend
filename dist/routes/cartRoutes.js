@@ -11,4 +11,5 @@ router.use(express_1.default.json());
 router.route('/get-cart').get(auth_1.auth, cartController_1.getCartItems);
 router.route('/add-item').post(auth_1.auth, cartController_1.addToCart);
 router.route('/remove-item').post(auth_1.auth, cartController_1.removeFromCart);
+router.route('/size').get(auth_1.auth, cartController_1.getCartItemsLength);
 exports.default = router;

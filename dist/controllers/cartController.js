@@ -12,25 +12,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeFromCart = exports.addToCart = exports.getCartItems = void 0;
+exports.removeFromCart = exports.addToCart = exports.getCartItemsLength = exports.getCartItems = void 0;
 const cartModel_1 = __importDefault(require("../models/cartModel"));
+const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const { ObjectId } = require('mongoose').Types;
+const mongoose = require('mongoose');
 // Aggiungi un prodotto al carrello dell'utente o crea un nuovo carrello
 //se non va manda solo il product ID e cerca
 const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const userId = req.params.id;
+        const userId = req.user._id;
         const product = req.body;
-        console.dir(req.body);
+        console.dir(req.user._id);
+        const productId = mongoose.Types.ObjectId(product === null || product === void 0 ? void 0 : product._id);
         // Check if the 'product' object exists and has the required properties
         if (!product || !(product === null || product === void 0 ? void 0 : product.name) || !(product === null || product === void 0 ? void 0 : product.image) || !(product === null || product === void 0 ? void 0 : product.price)) {
             return res.status(400).json({ error: 'Invalid product data' });
         }
         // Cerca un carrello esistente per l'utente
-        let cart = yield cartModel_1.default.findOne({ user: ObjectId(userId) });
+        let cart = yield cartModel_1.default.findOne({ user: req.user._id });
         if (cart) {
             // Aggiungi il prodotto al carrello esistente
-            const existingProduct = cart.cartItems.find((item) => item._id === (product === null || product === void 0 ? void 0 : product._id));
+            //const existingProduct = cart.cartItems.find((item) => item._id === product?._id);
+            const existingProduct = cart.cartItems.find((item) => item._id.equals(productId));
             if (existingProduct) {
                 // Se il prodotto esiste già nel carrello, aumenta la quantità
                 existingProduct.qty += 1;
@@ -40,8 +44,9 @@ const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 cart.cartItems.push({
                     name: product === null || product === void 0 ? void 0 : product.name,
                     image: product === null || product === void 0 ? void 0 : product.image,
-                    _id: ObjectId(product === null || product === void 0 ? void 0 : product._id),
+                    _id: mongoose.Types.ObjectId(product === null || product === void 0 ? void 0 : product._id),
                     price: product === null || product === void 0 ? void 0 : product.price,
+                    pandabuy_url: product === null || product === void 0 ? void 0 : product.pandabuy_url,
                     qty: 1
                 });
             }
@@ -51,19 +56,20 @@ const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         else {
             // Crea un nuovo carrello con il prodotto
             cart = new cartModel_1.default({
-                user: ObjectId(userId),
+                user: req.user._id,
                 cartItems: [{
                         name: product === null || product === void 0 ? void 0 : product.name,
                         image: product === null || product === void 0 ? void 0 : product.image,
-                        _id: ObjectId(product === null || product === void 0 ? void 0 : product._id),
+                        _id: mongoose.Types.ObjectId(product === null || product === void 0 ? void 0 : product._id),
                         price: product === null || product === void 0 ? void 0 : product.price,
+                        pandabuy_url: product === null || product === void 0 ? void 0 : product.pandabuy_url,
                         qty: 1
                     }],
                 totalPrice: product === null || product === void 0 ? void 0 : product.price
             });
         }
         const savedCart = yield cart.save();
-        res.status(201).json(savedCart);
+        res.status(201).json({ "status": "success" });
     }
     catch (error) {
         console.log(error);
@@ -75,13 +81,14 @@ exports.addToCart = addToCart;
 const removeFromCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const product = req.body;
-        const userId = req.params.id;
+        const userId = req.user._id;
         //const { userId, product } = req.body;
+        const productId = mongoose.Types.ObjectId(product === null || product === void 0 ? void 0 : product._id);
         // Cerca un carrello esistente per l'utente
-        let cart = yield cartModel_1.default.findOne({ user: userId });
+        let cart = yield cartModel_1.default.findOne({ user: req.user._id });
         if (cart) {
             // Cerca il prodotto nel carrello
-            const existingProductIndex = cart.cartItems.findIndex((item) => item._id === product._id);
+            const existingProductIndex = cart.cartItems.findIndex((item) => item._id.equals(productId));
             if (existingProductIndex !== -1) {
                 // Se il prodotto è nel carrello, riduci la quantità o rimuovilo
                 if (cart.cartItems[existingProductIndex].qty === 1) {
@@ -110,10 +117,9 @@ exports.removeFromCart = removeFromCart;
 // @desc    get user cart items
 // @route   Get /api/cart/get-cart
 // @access  Private
-const getCartItems = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getCartItems = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const userId = req.params.id; // Ottieni l'ID dell'utente dalla rotta
-        const cart = yield cartModel_1.default.findOne({ user: userId });
+        const cart = yield cartModel_1.default.findOne({ user: req.user._id });
         if (!cart) {
             res.status(200).json({ error: 'Carrello non trovato' });
             return;
@@ -124,5 +130,20 @@ const getCartItems = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     catch (error) {
         res.status(500).json({ error: 'Errore nell ottenere i prodotti del carrello' });
     }
-});
-exports.getCartItems = getCartItems;
+}));
+exports.getCartItemsLength = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const cart = yield cartModel_1.default.findOne({ user: req.user._id });
+        if (!cart) {
+            res.status(200).json({ error: 'Carrello non trovato' });
+        }
+        else {
+            const cartItems = cart.cartItems;
+            const cartLength = cartItems.length;
+            res.status(200).json({ length: cartLength });
+        }
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Error' });
+    }
+}));

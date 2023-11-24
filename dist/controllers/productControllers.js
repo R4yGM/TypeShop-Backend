@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createReview = exports.deleteProduct = exports.updateProduct = exports.createProduct = exports.getProductById = exports.getProductSearch = exports.getProductList = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const productModel_1 = __importDefault(require("../models/productModel"));
+const axios_1 = __importDefault(require("axios"));
 // @desc    Fetch 12 products
 // @route   GET /api/products
 // @access  Public
@@ -80,17 +81,31 @@ exports.getProductById = (0, express_async_handler_1.default)((req, res) => __aw
 // @route   POST /api/products
 // @access  Private/Admin
 exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name, image, pandabuy_url, description, brand, category, price, qty } = req.body;
+    const { name, image, pandabuy_url, brand, category, price, qty } = req.body;
     try {
+        // Make a GET request to the pandabuy_url
+        const headers = {
+            Accept: 'application/json, text/plain, */*',
+            'Accept-Encoding': 'gzip, compress, deflate, br',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',
+            'X-Amzn-Trace-Id': 'Root=1-643d15cc-231af09d4e31bc6e4a198345'
+        };
+        const response = yield axios_1.default.get(pandabuy_url, {
+            headers: headers
+        });
+        // Extract the 'Location' header from the response
+        const pandalink = response.request.res.responseUrl;
+        console.log(response.request);
+        // Create a new Product instance with the retrieved data and the 'Location' header
         const product = new productModel_1.default({
             name,
             image,
-            description,
             pandabuy_url,
             brand,
             category,
             price,
             qty,
+            pandabuy_affiliate: pandalink,
         });
         const newProduct = yield product.save();
         res.status(201).json(newProduct);
@@ -99,10 +114,10 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
         console.log(error);
         if (error.code === 11000) {
             // Handle duplicate key error
-            res.status(400).json({ message: "Duplicate key error." });
+            res.status(400).json({ message: 'Duplicate key error.' });
         }
         else {
-            res.status(500).json({ message: "Internal server error." });
+            res.status(500).json({ message: 'Internal server error.' });
         }
     }
 }));
@@ -142,7 +157,7 @@ exports.createReview = (0, express_async_handler_1.default)((req, res) => __awai
     if (product) {
         const exist = product.reviews.find((r) => r.user.toString() === req.user._id.toString());
         if (exist) {
-            res.status(400).json({ message: "You already reviewed on this product" });
+            res.status(400).json({ message: "You have already reviewed this product" });
         }
         else {
             const review = {

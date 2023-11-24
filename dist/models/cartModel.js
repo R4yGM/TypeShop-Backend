@@ -9,6 +9,7 @@ const cartSchema = new mongoose_1.Schema({
             qty: { type: Number, required: true },
             image: { type: String, required: true },
             price: { type: Number, required: true },
+            pandabuy_url: { type: String, required: true },
             _id: {
                 type: mongoose_1.Schema.Types.ObjectId,
                 required: true,

@@ -18,6 +18,10 @@ const getConfig = () => {
         R2_ACCOUNT_ID: process.env.R2_ACCOUNT_ID,
         R2_ACCESS_KEY: process.env.R2_ACCOUNT_ID,
         R2_SECRET_KEY: process.env.R2_ACCOUNT_ID,
+        TELEGRAM_BOT: process.env.TELEGRAM_BOT,
+        FIREBASE_projectId: process.env.FIREBASE_projectId,
+        FIREBASE_clientEmail: process.env.FIREBASE_clientEmail,
+        FIREBASE_privateKey: process.env.FIREBASE_privateKey,
     };
 };
 // Throwing an Error if any field was undefined we don't

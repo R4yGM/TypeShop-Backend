@@ -48,7 +48,7 @@ exports.stripePay = (0, express_async_handler_1.default)((req, res) => __awaiter
 exports.mobileStripePayment = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const paymentIntent = yield stripe.paymentIntents.create({
-            amount: Number(req.body.amount) * 100,
+            amount: Number(req.body.amount) * 100, //lowest denomination of particular currency
             currency: "usd",
             payment_method_types: ["card"], //by default
         });
