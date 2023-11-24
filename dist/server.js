@@ -27,6 +27,9 @@ if (config_1.default.NODE_ENV === 'development') {
 }
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
+app.get('/', (req, res) => {
+    res.send('backend operational');
+});
 app.use('/api/cart', cartRoutes_1.default);
 app.use('/api/products', productRoutes_1.default);
 app.use('/api/users', userRoutes_1.default);
