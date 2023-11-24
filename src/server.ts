@@ -2,10 +2,12 @@ import express, { Application } from 'express';
 import { Server } from 'http';
 import connectDb from './config/db';
 import dotenv from 'dotenv';
+import cartRoutes from './routes/cartRoutes';
 import productRoutes from './routes/productRoutes';
 import userRoutes from './routes/userRoutes';
 import orderRoutes from './routes/orderRoutes';
 import uploadRoutes from './routes/uploadRoutes';
+import suggestionRoutes from './routes/suggestion';
 import morgan from 'morgan';
 import { errorHandler, notFound } from './middleware/errorMiddleware';
 import cors from 'cors';
@@ -27,10 +29,12 @@ if (sanitizedConfig.NODE_ENV === 'development') {
 app.use(express.json());
 app.use(cors());
 
+app.use('/api/cart', cartRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/suggestion', suggestionRoutes);
 
 app.use('/uploads', express.static(path.join(process.cwd(), '/uploads')));
 

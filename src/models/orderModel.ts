@@ -4,7 +4,7 @@ type CartItems = {
   name: string;
   qty: number;
   image: string;
-  _id: Types.ObjectId;
+  _id: string;
 };
 
 type AddressType = {

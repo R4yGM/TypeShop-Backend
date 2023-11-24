@@ -11,9 +11,10 @@ interface IProduct {
   name: string;
   image: string;
   price: number;
+  pandabuy_url: string;
+  pandabuy_affiliate: string;
   category: string;
   brand: string;
-  description: string;
   qty?: number;
   reviews: Review[];
   // _id: string;
@@ -39,7 +40,8 @@ const productSchema = new Schema<IProduct>(
     price: { type: Number, required: true },
     brand: { type: String, required: true },
     category: { type: String, required: true },
-    description: { type: String, required: true },
+    pandabuy_url: { type: String, required: true },
+    pandabuy_affiliate: { type: String, required: true },
     qty: Number,
     reviews: [reviewSchema],
   },

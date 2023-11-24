@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import Product from "../models/productModel";
+import axios from 'axios';
 
 // @desc    Fetch 12 products
 // @route   GET /api/products
@@ -92,33 +93,49 @@ export const getProductById = asyncHandler(
 // @route   POST /api/products
 // @access  Private/Admin
 
-export const createProduct = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { name, image, description, brand, category, price, qty } = req.body;
+export const createProduct = asyncHandler(async (req: Request, res: Response) => {
+  const { name, image, pandabuy_url, brand, category, price, qty } = req.body;
 
-    try {
-      const product = new Product({
-        name,
-        image,
-        description,
-        brand,
-        category,
-        price,
-        qty,
-      });
+  try {
+    // Make a GET request to the pandabuy_url
+    const headers = {
+      Accept: 'application/json, text/plain, */*',
+      'Accept-Encoding': 'gzip, compress, deflate, br',
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',
+      'X-Amzn-Trace-Id': 'Root=1-643d15cc-231af09d4e31bc6e4a198345'
+    }
+    const response = await axios.get(pandabuy_url , {
+      headers: headers
+    });
 
-      const newProduct = await product.save();
-      res.status(201).json(newProduct);
-    } catch (error: any) {
-      if (error.code === 11000) {
-        // Handle duplicate key error
-        res.status(400).json({ message: "Duplicate key error." });
-      } else {
-        res.status(500).json({ message: "Internal server error." });
-      }
+    // Extract the 'Location' header from the response
+    const pandalink = response.request.res.responseUrl;
+    console.log(response.request)
+
+    // Create a new Product instance with the retrieved data and the 'Location' header
+    const product = new Product({
+      name,
+      image,
+      pandabuy_url,
+      brand,
+      category,
+      price,
+      qty,
+      pandabuy_affiliate: pandalink,
+    });
+
+    const newProduct = await product.save();
+    res.status(201).json(newProduct);
+  } catch (error: any) {
+    console.log(error);
+    if (error.code === 11000) {
+      // Handle duplicate key error
+      res.status(400).json({ message: 'Duplicate key error.' });
+    } else {
+      res.status(500).json({ message: 'Internal server error.' });
     }
   }
-);
+});
 
 // @desc    Update a product
 // @route   PUT /api/products/:id
@@ -168,7 +185,7 @@ export const createReview = asyncHandler(async (req: any, res: Response) => {
       (r) => r.user.toString() === req.user._id.toString()
     );
     if (exist) {
-      res.status(400).json({ message: "You already reviewed on this product" });
+      res.status(400).json({ message: "You have already reviewed this product" });
     } else {
       const review = {
         name: req.user.name as string,

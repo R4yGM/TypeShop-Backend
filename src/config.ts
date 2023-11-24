@@ -14,6 +14,13 @@ interface ENV {
   MONGO_URI: string | undefined;
   STRIPE_SECRET_KEY: string | undefined;
   JWT_SECRET: string | undefined;
+  R2_ACCOUNT_ID: string | undefined;
+  R2_ACCESS_KEY: string | undefined;
+  R2_SECRET_KEY: string | undefined;
+  TELEGRAM_BOT: string | undefined;
+  FIREBASE_projectId: string | undefined;
+  FIREBASE_clientEmail: string | undefined;
+  FIREBASE_privateKey: string | undefined;
 }
 
 interface Config {
@@ -22,6 +29,13 @@ interface Config {
   MONGO_URI: string;
   STRIPE_SECRET_KEY: string;
   JWT_SECRET: string;
+  R2_ACCOUNT_ID: string;
+  R2_ACCESS_KEY: string;
+  R2_SECRET_KEY: string;
+  TELEGRAM_BOT: string;
+  FIREBASE_projectId: string;
+  FIREBASE_clientEmail: string;
+  FIREBASE_privateKey: string;
 }
 
 // Loading process.env as ENV interface
@@ -33,6 +47,14 @@ const getConfig = (): ENV => {
     MONGO_URI: process.env.MONGO_URI,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     JWT_SECRET: process.env.JWT_SECRET,
+    R2_ACCOUNT_ID: process.env.R2_ACCOUNT_ID,
+    R2_ACCESS_KEY: process.env.R2_ACCOUNT_ID,
+    R2_SECRET_KEY: process.env.R2_ACCOUNT_ID,
+    TELEGRAM_BOT: process.env.TELEGRAM_BOT,
+    FIREBASE_projectId: process.env.FIREBASE_projectId,
+    FIREBASE_clientEmail: process.env.FIREBASE_clientEmail,
+    FIREBASE_privateKey: process.env.FIREBASE_privateKey,
+
   };
 };
 
