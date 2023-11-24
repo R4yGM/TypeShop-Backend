@@ -6,7 +6,6 @@ import sanitizedConfig from '../config';
 
 import { admin, auth } from '../middleware/auth';
 const router = express.Router();
-router.use(express.json());
 
 export const postSuggestion = asyncHandler(
     async (req: Request, res: Response) => {
