@@ -7,7 +7,6 @@ import {
 } from '../controllers/cartController';
 import { admin, auth } from '../middleware/auth';
 const router = express.Router();
-router.use(express.json());
 
 router.route('/get-cart').get(auth, getCartItems);
 router.route('/add-item').post(auth, addToCart)
