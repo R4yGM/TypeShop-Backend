@@ -15,6 +15,9 @@ const getConfig = () => {
         MONGO_URI: process.env.MONGO_URI,
         STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
         JWT_SECRET: process.env.JWT_SECRET,
+        R2_ACCOUNT_ID: process.env.R2_ACCOUNT_ID,
+        R2_ACCESS_KEY: process.env.R2_ACCOUNT_ID,
+        R2_SECRET_KEY: process.env.R2_ACCOUNT_ID,
     };
 };
 // Throwing an Error if any field was undefined we don't

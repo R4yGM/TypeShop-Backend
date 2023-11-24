@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const db_1 = __importDefault(require("./config/db"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const cartRoutes_1 = __importDefault(require("./routes/cartRoutes"));
 const productRoutes_1 = __importDefault(require("./routes/productRoutes"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const orderRoutes_1 = __importDefault(require("./routes/orderRoutes"));
@@ -25,6 +26,7 @@ if (config_1.default.NODE_ENV === 'development') {
 }
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
+app.use('/api/cart', cartRoutes_1.default);
 app.use('/api/products', productRoutes_1.default);
 app.use('/api/users', userRoutes_1.default);
 app.use('/api/orders', orderRoutes_1.default);

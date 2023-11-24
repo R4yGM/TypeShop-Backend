@@ -80,12 +80,13 @@ exports.getProductById = (0, express_async_handler_1.default)((req, res) => __aw
 // @route   POST /api/products
 // @access  Private/Admin
 exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name, image, description, brand, category, price, qty } = req.body;
+    const { name, image, pandabuy_url, description, brand, category, price, qty } = req.body;
     try {
         const product = new productModel_1.default({
             name,
             image,
             description,
+            pandabuy_url,
             brand,
             category,
             price,
@@ -95,6 +96,7 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
         res.status(201).json(newProduct);
     }
     catch (error) {
+        console.log(error);
         if (error.code === 11000) {
             // Handle duplicate key error
             res.status(400).json({ message: "Duplicate key error." });

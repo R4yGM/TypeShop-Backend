@@ -16,6 +16,7 @@ const productSchema = new mongoose_1.Schema({
     brand: { type: String, required: true },
     category: { type: String, required: true },
     description: { type: String, required: true },
+    pandabuy_url: { type: String, required: true },
     qty: Number,
     reviews: [reviewSchema],
 }, {
