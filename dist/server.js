@@ -30,6 +30,8 @@ app.use((0, cors_1.default)());
 app.get('/', (req, res) => {
     res.send('backend operational');
 });
+app.use(express_1.default.json({ limit: '100mb' })); // Adjust the limit as needed
+app.use(express_1.default.urlencoded({ limit: '100mb' }));
 app.use('/api/cart', cartRoutes_1.default);
 app.use('/api/products', productRoutes_1.default);
 app.use('/api/users', userRoutes_1.default);

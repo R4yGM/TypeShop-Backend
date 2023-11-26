@@ -10,7 +10,7 @@ admin.initializeApp({
   credential: admin.credential.cert({
     projectId: sanitizedConfig.FIREBASE_projectId,
     clientEmail: sanitizedConfig.FIREBASE_clientEmail,
-    privateKey: sanitizedConfig.FIREBASE_privateKey,
+    privateKey: sanitizedConfig.FIREBASE_privateKey.replace(/\\n/g, '\n'),
   }),
   storageBucket: storageBucketUrl.replace(/^gs:\/\//g, ''), // remove gs:// at the beginning of the url
 });
