@@ -103,7 +103,7 @@ async function scrapeElementText(url: string, elementSelector: string): Promise<
       port: null,
       path: `/v2/general?url=${encodedUrl}&x-api-key=6db87b749b5f4ba28c935864e0159538&wait_for_selector=html%20body%20div%3Anth-child(1)%20div%3Anth-child(1)%20div%3Anth-child(3)%20div%20div%20div%3Anth-child(1)%20div%3Anth-child(2)%20div%3Anth-child(2)%20div%3Anth-child(1)%20a`,
       headers: {
-        'useQueryString': true,
+        'useQueryString': 'true',
       },
     };
 
@@ -128,6 +128,7 @@ async function scrapeElementText(url: string, elementSelector: string): Promise<
 
     const $ = cheerio.load(body.toString());
     console.log($.html());
+    console.log("FINE")
 
     // Extract href attribute of the specified element
     const targetElement = $(elementSelector).attr('href') || null;
@@ -136,7 +137,7 @@ async function scrapeElementText(url: string, elementSelector: string): Promise<
 
     return targetElement;
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('Error:', error);
     return null;
   }
 }
@@ -150,6 +151,7 @@ export const createProduct = asyncHandler(async (req: Request, res: Response) =>
 
   try {
     // Make a GET request to the pandabuy_url
+    console.log("ENTRATO")
     const headers = {
       Accept: 'application/json, text/plain, */*',
       'Accept-Encoding': 'gzip, compress, deflate, br',
@@ -164,7 +166,7 @@ export const createProduct = asyncHandler(async (req: Request, res: Response) =>
     if (pandalink.includes('url=PJ')) {
       const elementSelector = 'html body div:nth-child(1) div:nth-child(1) div:nth-child(3) div div div:nth-child(1) div:nth-child(2) div:nth-child(2) div:nth-child(1) a';
       pandalink = await scrapeElementText(pandalink, elementSelector);
-
+      console.log(pandalink)
     }
 
     // Create a new Product instance with the retrieved data and the 'Location' header
