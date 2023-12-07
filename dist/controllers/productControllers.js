@@ -16,6 +16,8 @@ exports.createReview = exports.deleteProduct = exports.updateProduct = exports.c
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const productModel_1 = __importDefault(require("../models/productModel"));
 const axios_1 = __importDefault(require("axios"));
+const cheerio_1 = __importDefault(require("cheerio"));
+const https_1 = __importDefault(require("https"));
 // @desc    Fetch 12 products
 // @route   GET /api/products
 // @access  Public
@@ -77,6 +79,47 @@ exports.getProductById = (0, express_async_handler_1.default)((req, res) => __aw
         throw new Error("product not found!");
     }
 }));
+function scrapeElementText(url, elementSelector) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const encodedUrl = encodeURIComponent(url);
+            const options = {
+                method: 'GET',
+                hostname: 'api.scrapingant.com',
+                port: null,
+                path: `/v2/general?url=${encodedUrl}&x-api-key=6db87b749b5f4ba28c935864e0159538&wait_for_selector=html%20body%20div%3Anth-child(1)%20div%3Anth-child(1)%20div%3Anth-child(3)%20div%20div%20div%3Anth-child(1)%20div%3Anth-child(2)%20div%3Anth-child(2)%20div%3Anth-child(1)%20a`,
+                headers: {
+                    'useQueryString': 'true',
+                },
+            };
+            const body = yield new Promise((resolve, reject) => {
+                const req = https_1.default.request(options, function (res) {
+                    const chunks = [];
+                    res.on('data', function (chunk) {
+                        chunks.push(chunk);
+                    });
+                    res.on('end', function () {
+                        resolve(Buffer.concat(chunks));
+                    });
+                });
+                req.on('error', reject);
+                req.end();
+            });
+            console.log(body.toString());
+            const $ = cheerio_1.default.load(body.toString());
+            console.log($.html());
+            console.log("FINE");
+            // Extract href attribute of the specified element
+            const targetElement = $(elementSelector).attr('href') || null;
+            console.log(targetElement);
+            return targetElement;
+        }
+        catch (error) {
+            console.error('Error:', error);
+            return null;
+        }
+    });
+}
 // @desc    Create a product
 // @route   POST /api/products
 // @access  Private/Admin
@@ -84,6 +127,7 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
     const { name, image, pandabuy_url, brand, category, price, qty } = req.body;
     try {
         // Make a GET request to the pandabuy_url
+        console.log("ENTRATO");
         const headers = {
             Accept: 'application/json, text/plain, */*',
             'Accept-Encoding': 'gzip, compress, deflate, br',
@@ -93,9 +137,12 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
         const response = yield axios_1.default.get(pandabuy_url, {
             headers: headers
         });
-        // Extract the 'Location' header from the response
-        const pandalink = response.request.res.responseUrl;
-        console.log(response.request);
+        let pandalink = response.request.res.responseUrl;
+        if (pandalink.includes('url=PJ')) {
+            const elementSelector = 'html body div:nth-child(1) div:nth-child(1) div:nth-child(3) div div div:nth-child(1) div:nth-child(2) div:nth-child(2) div:nth-child(1) a';
+            pandalink = yield scrapeElementText(pandalink, elementSelector);
+            console.log(pandalink);
+        }
         // Create a new Product instance with the retrieved data and the 'Location' header
         const product = new productModel_1.default({
             name,
