@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import Product from "../models/productModel";
 import axios from 'axios';
+import cheerio from 'cheerio';
+import https from 'https';
 
 // @desc    Fetch 12 products
 // @route   GET /api/products
@@ -89,6 +91,56 @@ export const getProductById = asyncHandler(
   }
 );
 
+
+
+async function scrapeElementText(url: string, elementSelector: string): Promise<string | null> {
+  try {
+    const encodedUrl = encodeURIComponent(url);
+
+    const options: https.RequestOptions = {
+      method: 'GET',
+      hostname: 'api.scrapingant.com',
+      port: null,
+      path: `/v2/general?url=${encodedUrl}&x-api-key=6db87b749b5f4ba28c935864e0159538&wait_for_selector=html%20body%20div%3Anth-child(1)%20div%3Anth-child(1)%20div%3Anth-child(3)%20div%20div%20div%3Anth-child(1)%20div%3Anth-child(2)%20div%3Anth-child(2)%20div%3Anth-child(1)%20a`,
+      headers: {
+        'useQueryString': true,
+      },
+    };
+
+    const body = await new Promise<Buffer>((resolve, reject) => {
+      const req = https.request(options, function (res) {
+        const chunks: Buffer[] = [];
+
+        res.on('data', function (chunk) {
+          chunks.push(chunk);
+        });
+
+        res.on('end', function () {
+          resolve(Buffer.concat(chunks));
+        });
+      });
+
+      req.on('error', reject);
+      req.end();
+    });
+
+    console.log(body.toString());
+
+    const $ = cheerio.load(body.toString());
+    console.log($.html());
+
+    // Extract href attribute of the specified element
+    const targetElement = $(elementSelector).attr('href') || null;
+
+    console.log(targetElement);
+
+    return targetElement;
+  } catch (error) {
+    console.error('Error:', error.message);
+    return null;
+  }
+}
+
 // @desc    Create a product
 // @route   POST /api/products
 // @access  Private/Admin
@@ -108,9 +160,12 @@ export const createProduct = asyncHandler(async (req: Request, res: Response) =>
       headers: headers
     });
 
-    // Extract the 'Location' header from the response
-    const pandalink = response.request.res.responseUrl;
-    console.log(response.request)
+    let pandalink = response.request.res.responseUrl;
+    if (pandalink.includes('url=PJ')) {
+      const elementSelector = 'html body div:nth-child(1) div:nth-child(1) div:nth-child(3) div div div:nth-child(1) div:nth-child(2) div:nth-child(2) div:nth-child(1) a';
+      pandalink = await scrapeElementText(pandalink, elementSelector);
+
+    }
 
     // Create a new Product instance with the retrieved data and the 'Location' header
     const product = new Product({
