@@ -87,7 +87,7 @@ function scrapeElementText(url, elementSelector) {
                 method: 'GET',
                 hostname: 'api.scrapingant.com',
                 port: null,
-                path: `/v2/general?url=${encodedUrl}&x-api-key=6db87b749b5f4ba28c935864e0159538&wait_for_selector=html%20body%20div%3Anth-child(1)%20div%3Anth-child(1)%20div%3Anth-child(3)%20div%20div%20div%3Anth-child(1)%20div%3Anth-child(2)%20div%3Anth-child(2)%20div%3Anth-child(1)%20a`,
+                path: `/v2/general?url=${encodedUrl}&x-api-key=6db87b749b5f4ba28c935864e0159538&wait_for_selector=%23app%20%3E%20div.goods-detail%20%3E%20div.product-container%20%3E%20div%20%3E%20div%20%3E%20div.overview%20%3E%20div.overview-right%20%3E%20div%3Anth-child(3)%20%3E%20div.price%20%3E%20div%20%3E%20div%20%3E%20div.goods-source%20%3E%20a`,
                 headers: {
                     'useQueryString': 'true',
                 },
@@ -105,10 +105,8 @@ function scrapeElementText(url, elementSelector) {
                 req.on('error', reject);
                 req.end();
             });
-            console.log(body.toString());
             const $ = cheerio_1.default.load(body.toString());
-            console.log($.html());
-            console.log("FINE");
+            console.log("SCRAPE");
             // Extract href attribute of the specified element
             const targetElement = $(elementSelector).attr('href') || null;
             console.log(targetElement);
@@ -139,7 +137,7 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
         });
         let pandalink = response.request.res.responseUrl;
         if (pandalink.includes('url=PJ')) {
-            const elementSelector = 'html body div:nth-child(1) div:nth-child(1) div:nth-child(3) div div div:nth-child(1) div:nth-child(2) div:nth-child(2) div:nth-child(1) a';
+            const elementSelector = '#app > div.goods-detail > div.product-container > div > div > div.overview > div.overview-right > div:nth-child(3) > div.price > div > div > div.goods-source > a';
             pandalink = yield scrapeElementText(pandalink, elementSelector);
             console.log(pandalink);
         }
